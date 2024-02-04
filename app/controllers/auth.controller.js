@@ -17,13 +17,12 @@ const signUp = (req, res) => {
     .then((user) => {
       if (req.body.roles) {
         Role.findAll({
-            where: {
-              name: {
-                [Op.or]: req.body.roles,
-              },
+          where: {
+            name: {
+              [Op.or]: req.body.roles,
             },
-          })
-          .then((roles) => {
+          },
+        }).then((roles) => {
           user.setRoles(roles).then(() => {
             res.send({ message: "User  registered successfully!" });
           });
@@ -45,8 +44,6 @@ const signIn = (req, res) => {
     where: {
       username: req.body.username,
     },
-    include: Role, // Include roles in the result
-
   })
     .then((user) => {
       if (!user) {
@@ -61,7 +58,7 @@ const signIn = (req, res) => {
           .status(401)
           .send({ accessToken: null, message: "Invalid Password" });
       }
-      const token = jwt.sign({ id: user.id }, config.secret, {
+      const token = jwt.sign({ id: user.id }, config.secert, {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
         expiresIn: 86400, // 24 hours
@@ -82,7 +79,9 @@ const signIn = (req, res) => {
         });
       });
     })
-    .catch((err) => res.status(5000).send({ message: err.message }));
+    .catch((err) => {
+      return res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports = {
